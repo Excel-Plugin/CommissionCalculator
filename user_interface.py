@@ -5,7 +5,10 @@ from PyQt5.uic import loadUi
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        super(MyWindow, self).__init__()
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
         loadUi('user_interface.ui', self)
         self.lineEditOpenPassword.setEchoMode(QLineEdit.Password)
         self.lineEditEditPassword.setEchoMode(QLineEdit.Password)
@@ -16,6 +19,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.statusBar().addWidget(progressText)
         self.statusBar().addPermanentWidget(progressBar)
         self.pushButtonSelectFiles.clicked.connect(self.selectFiles)
+        self.pushButtonQuit.clicked.connect(self.quit)
 
     def selectFiles(self):
 
@@ -24,6 +28,10 @@ class MyWindow(QtWidgets.QMainWindow):
                                                   "C:/",
                                                   "Excel Files (*.xls *.xlsx)")
         print(files, ok1)
+
+    def quit(self):
+        # 未来此处可能还有其他清理工作
+        exit()
 
 
 if __name__ == "__main__":

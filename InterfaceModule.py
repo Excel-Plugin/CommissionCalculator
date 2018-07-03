@@ -40,13 +40,16 @@ class easyExcel:
                                 sht.Cells(i+1,j+1).Value=content[i][j]
                 self.save()
         def createSheet(self,sheetName):
-
+                sht=self.xlBook.Worksheets
+                sht.Add(After='Sheet1').Name=sheetName
                 pass
 
 
 
 
 #测试一下
-test=easyExcel("C:\Project\\abc.xlsx")
+test=easyExcel(r"C:\Project\wcnm.xlsx")
 K=test.get_sheet('Sheet1')
 print(K)
+test.createSheet('hh')
+test.save()

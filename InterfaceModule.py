@@ -28,6 +28,22 @@ class easyExcel:
                         A.append(B)
                 #print(A)
                 return A
+        def close(self):
+                self.xlBook.Close(self.filename)
+                del self.xlApp
+        def save(self):
+                self.xlBook.Save()
+        def setSheet(self,sheetName,content):
+                sht=self.xlBook.Worksheets(sheetName)
+                for i in range(len(content)):
+                        for j in range(len(content[0])):
+                                sht.Cells(i+1,j+1).Value=content[i][j]
+                self.save()
+        def createSheet(self,sheetName):
+
+                pass
+
+
 
 
 #测试一下

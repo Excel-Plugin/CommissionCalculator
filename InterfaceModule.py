@@ -3,7 +3,7 @@ from win32com.client import Dispatch
 import win32com.client
 
 
-class easyExcel:
+class Easyxcel:
     def __init__(self, filename=None, access_password, write_res_password):
         self.xlApp = win32com.client.Dispatch('Excel.Application')
         if filename:
@@ -54,7 +54,7 @@ class easyExcel:
 
 
 # 测试一下
-test = easyExcel(r"C:\Project\wcnm.xlsx")
+test = Easyexcel(r"C:\Project\wcnm.xlsx")
 K = test.get_sheet('Sheet1')
 print(K)
 test.createSheet('hh')

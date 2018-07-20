@@ -3,8 +3,8 @@ from win32com.client import Dispatch
 import win32com.client
 
 
-class Easyxcel:
-    def __init__(self, filename=None, access_password, write_res_password):
+class Easyexcel:
+    def __init__(self, filename=None, access_password=None, write_res_password=None):
         self.xlApp = win32com.client.Dispatch('Excel.Application')
         if filename:
             self.xlApp.Visible = True
@@ -17,18 +17,18 @@ class Easyxcel:
 
     def get_sheet(self, sheet_name):
         A = []
-        for i in range(1, 1000000):
+        for i in range(4, 10000):
             if str(self.xlBook.Worksheets(sheet_name).Cells(i, 1)) == 'None':
                 break
             # print(self.xlBook.Worksheets(sheet_name).Rows(i))
             B = []
-            for j in range(1, 1000000):
+            for j in range(1, 100):
                 if (str(self.xlBook.Worksheets(sheet_name).Cells(i, j)) == 'None') and (
                         str(self.xlBook.Worksheets(sheet_name).Cells(i, j + 1)) == 'None') and (
                         str(self.xlBook.Worksheets(sheet_name).Cells(i, j + 2)) == 'None'):
-                    break
+                            break
                 B.append(str(self.xlBook.Worksheets(sheet_name).Cells(i, j)))
-
+                print(str(self.xlBook.Worksheets(sheet_name).Cells(i, j)))
             A.append(B)
         # print(A)
         return A
@@ -54,8 +54,10 @@ class Easyxcel:
 
 
 # 测试一下
-test = Easyexcel(r"C:\Project\wcnm.xlsx")
-K = test.get_sheet('Sheet1')
-print(K)
-test.createSheet('hh')
-test.save()
+test = Easyexcel(r"C:\Project\RMB\昆山项目1\2018年04道普业务提成明细.xlsx","57578970","57578971")
+K = test.get_sheet('应收款4月份（数据源表）')
+#print(K)
+for i in K:
+    print(i)
+#test.createSheet('hh')
+#test.save()

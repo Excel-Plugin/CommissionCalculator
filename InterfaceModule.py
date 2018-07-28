@@ -104,3 +104,6 @@ if __name__ == '__main__':
     header_dict, sheet_data = excel.get_sheet("应收款4月份（数据源表）")
     print(len(header_dict))
     print(len(sheet_data))
+    print(header_dict)
+    print("!!!!!")
+    print(sheet_data)

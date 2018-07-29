@@ -18,11 +18,23 @@ class Bonus:
         result=[]
         for i in range(len(sheet_data0)):
             temp=[]
-            for j in range(3):
+            for j in range(12):
                 temp.append([])
             result.append(temp)
         for i in range (len(sheet_data0)):
-            result[i][header_dict0['业务']]=sheet_data0[i][header_dict0['业务']]
+            result[i][header_dict0['业务']] = sheet_data0[i][header_dict0['业务']]
+            result[i][header_dict0['开票日期']] = sheet_data0[i][header_dict0['开票日期']]
+            result[i][header_dict0['客户编号']] = sheet_data0[i][header_dict0['客户编号']]
+            result[i][header_dict0['客户名称']] = sheet_data0[i][header_dict0['客户名称']]
+            result[i][header_dict0['金额']] = sheet_data0[i][header_dict0['金额']]
+            result[i][header_dict0['发票号码']] = sheet_data0[i][header_dict0['发票号码']]
+            result[i][header_dict0['到期时间']] = sheet_data0[i][header_dict0['到期时间']]
+            result[i][header_dict0['款期']] = sheet_data0[i][header_dict0['款期']]
+            result[i][header_dict0['付款日']] = sheet_data0[i][header_dict0['付款日']]
+            result[i][header_dict0['付款金额']] = sheet_data0[i][header_dict0['付款金额']]
+
+
+
         print (result)
 
         pass

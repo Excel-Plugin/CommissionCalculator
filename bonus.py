@@ -3,13 +3,14 @@
 
 import InterfaceModule as IM
 import os
-
+from datetime import datetime
 
 class Bonus:
     def __init__(self):
         pass
 
     def calc_bonus(self):
+        ratio=1.17 #税率为1.17
         excel=IM.Easyexcel(os.getcwd() + r"\about\2018年04道普业务提成明细.xlsx", "57578970", "57578971")
         header_dict0, sheet_data0 = excel.get_sheet("应收款4月份（数据源表）")
         print(header_dict0)
@@ -18,7 +19,7 @@ class Bonus:
         result=[]
         for i in range(len(sheet_data0)):
             temp=[]
-            for j in range(12):
+            for j in range(15):
                 temp.append([])
             result.append(temp)
         for i in range (len(sheet_data0)):
@@ -32,6 +33,14 @@ class Bonus:
             result[i][header_dict0['款期']] = sheet_data0[i][header_dict0['款期']]
             result[i][header_dict0['付款日']] = sheet_data0[i][header_dict0['付款日']]
             result[i][header_dict0['付款金额']] = sheet_data0[i][header_dict0['付款金额']]
+            if result[i][header_dict0['付款金额']]=="未税":
+                result[i][10]=result[i][header_dict0['付款金额']]
+            else:
+                result[i][10]=round(float(result[i][header_dict0['付款金额']])/ratio,2)
+
+            result[i][11]=0
+            result[i][12]=""
+
 
 
 

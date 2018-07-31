@@ -56,7 +56,8 @@ class Easyexcel:
     @cache
     def get_sheet(self, sheet_name):
         """读取Excel表中的一个sheet，返回表头各属性对应索引dict和数据表
-        注意：这里默认所有sheet都是矩阵，即所有行长度都等于表头长度"""
+        注意1：这里默认所有sheet都是矩阵，即所有行长度都等于表头长度
+        注意2：这里默认sheet文件结尾前没有空行"""
 
         # 读取表头，属性-索引字典保存在header_dict中
         r = 1

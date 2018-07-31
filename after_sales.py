@@ -62,3 +62,4 @@ class AfterSales(object):
             row[self.rst_dict['到款天数']] = \
                 (datetime.strptime(row[self.rst_dict['到期时间']].split(' ')[0], "%Y-%m-%d")
                  - datetime.strptime(rcd[self.rst_dict['付款日']].split(' ')[0], "%Y-%m-%d")).days
+            row[self.rst_dict['未税服务费']] = ""

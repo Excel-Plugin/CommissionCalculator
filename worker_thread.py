@@ -1,4 +1,7 @@
 from PyQt5.QtCore import QThread
+from InterfaceModule import Easyexcel
+from after_sales import AfterSales
+import os
 
 
 class WorkerThread(QThread):
@@ -22,8 +25,17 @@ class WorkerThread(QThread):
     def __updateProgress(self, progress):
         self.__signal.emit(progress)
 
-    # TODO:具体功能在这里实现，下面的代码为示例
+    # TODO:逻辑还没完成
     def __work(self):
-        for i in range(0, 101):
-            self.msleep(100)
-            self.__updateProgress(i)
+        excel = Easyexcel(os.getcwd() + r"\about\2018年04道普业务提成明细.xlsx", "57578970", "57578971")
+        src_dict, src_data = excel.get_sheet("应收款4月份（数据源表）")
+
+        # 注意1：这里默认客户编号表里面所有行都没有空属性且文件结尾前没有空行
+        # 注意2：这里默认客户编号表里所有客户类型都在规则表的"规则名"列中
+        clt_dict, clt_data = excel.get_sheet("客户编号")
+        client_dict = {}  # 映射关系：客户编号->该客户对应行
+        for row in clt_data:
+            client_dict[row[clt_dict['客户编号']]] = row
+
+        after_sales = AfterSales()
+        as_header, as_content = after_sales.calc_commission(src_dict, src_data, client_dict)

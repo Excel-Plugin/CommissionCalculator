@@ -3,15 +3,15 @@ from datetime import datetime
 
 # 来自售后员提成明细表
 # 注意：此处的地名一定要与数据源表中的地名完全一致
-psn2plc = {"戴梦菲": ["龙华", "观澜"],
-           "李飞": ["济源"],
-           "卢伟": ["郑州港区", "郑州加工区", "鹤壁", "锜昌", "建泰"],
-           "周文斌": ["廊坊", "太原", "烟台"]}
+default_psn2plc = {"戴梦菲": ["龙华", "观澜"],
+                   "李飞": ["济源"],
+                   "卢伟": ["郑州港区", "郑州加工区", "鹤壁", "锜昌", "建泰"],
+                   "周文斌": ["廊坊", "太原", "烟台"]}
 
 
 class AfterSales(object):
 
-    def __init__(self, psn2plc):
+    def __init__(self, psn2plc=default_psn2plc):
         self.plc2psn = {}
         for psn, plcs in psn2plc:
             for plc in plcs:
@@ -28,7 +28,7 @@ class AfterSales(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data):
+    def calc_commission(self, src_dict, src_data, client_dict):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         result = []  # 结果表数据
@@ -63,3 +63,25 @@ class AfterSales(object):
                 (datetime.strptime(row[self.rst_dict['到期时间']].split(' ')[0], "%Y-%m-%d")
                  - datetime.strptime(rcd[self.rst_dict['付款日']].split(' ')[0], "%Y-%m-%d")).days
             row[self.rst_dict['未税服务费']] = ""
+            row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
+            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]]
+            row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
+            row[self.rst_dict['我司单价']] = 0  # TODO: 不知道我司单价是如何计算的
+            row[self.rst_dict['公司指导价合计']] = ""
+            row[self.rst_dict['实际差价']] = ""
+            row[self.rst_dict['成品代码']] = rcd[src_dict['成品代码']]
+            row[self.rst_dict['品名']] = rcd[src_dict['品名']]
+            row[self.rst_dict['规格']] = rcd[src_dict['规格']]
+            row[self.rst_dict['数量']] = rcd[src_dict['数量（桶）']]
+            row[self.rst_dict['单位']] = rcd[src_dict['单位']]
+            row[self.rst_dict['单价']] = rcd[src_dict['单价']]
+            row[self.rst_dict['含税金额']] = rcd[src_dict['含税金额']]
+            row[self.rst_dict['数量']] = rcd[src_dict['数量（桶）']]
+            row[self.rst_dict['重量']] = rcd[src_dict['重量（公斤）']]
+            row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
+            row[self.rst_dict['指导价']] = "指导价"
+            row[self.rst_dict['单号']] = rcd[src_dict['单号']]
+            row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
+            row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
+            result.append(row)
+        return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换

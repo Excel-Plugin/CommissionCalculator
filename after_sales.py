@@ -29,9 +29,10 @@ class AfterSales(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, client_dict):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
+        # TODO: 添加汇总行
         result = []  # 结果表数据
         for rcd in src_data:
             place = None  # 该行记录对应的出货地点
@@ -66,7 +67,7 @@ class AfterSales(object):
                  - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
             row[self.rst_dict['未税服务费']] = ""
             row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
-            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]]
+            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
             row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
             row[self.rst_dict['我司单价']] = 0  # TODO: 不知道我司单价是如何计算的
             row[self.rst_dict['公司指导价合计']] = ""

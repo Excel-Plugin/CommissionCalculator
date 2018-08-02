@@ -38,12 +38,12 @@ class WorkerThread(QThread):
             client_dict[row[clt_dict['客户编号']]] = row
 
         after_sales = AfterSales()
-        as_header, as_content = after_sales.calc_commission(src_dict, src_data, client_dict)
-        return as_header,as_content
+        as_header, as_content = after_sales.calc_commission(src_dict, src_data, clt_dict, client_dict)
+        return as_header, as_content
 
 
-if __name__  == '__main__':
-        w=WorkerThread(0)
-        header,content=w.run()
-        print(header)
-        print(content)
+if __name__ == '__main__':
+    w = WorkerThread(0)
+    header, content = w.run()
+    print(header)
+    print(content)

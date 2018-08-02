@@ -10,11 +10,11 @@ def cache(get_sheet):
     注意2：若sheet被修改了，将cached_sheets下对应的pickle文件删除即可，之后调用get_sheet时会自动生成"""
     def inner(self, sheet_name):
         if os.path.exists("cached_sheets/" + sheet_name + ".pickle"):
-            print("exists")
+            print("exists "+sheet_name)
             with open("cached_sheets/" + sheet_name + ".pickle", "rb") as f:
                 return pickle.load(f)
         else:
-            print("gen")
+            print("gen "+sheet_name)
             header_dict, sheet_data = get_sheet(self, sheet_name)
             with open("cached_sheets/" + sheet_name + ".pickle", "wb") as f:
                 pickle.dump((header_dict, sheet_data), f)
@@ -71,7 +71,7 @@ class Easyexcel:
 
         # 读取表中数据到data中
         sheet_data = []
-        len_ = len(header_dict)  # 表头长度
+        len_ = len(header)  # 表头长度（不能用header_dict，因为有的表头项会重复）
         row = self.get_a_row(sheet_name, r, len_)
         while row:
             sheet_data.append(row)
@@ -87,11 +87,15 @@ class Easyexcel:
     def save(self):
         self.xlBook.Save()
 
-    def set_sheet(self, sheet_name, content):
+    def set_sheet(self, sheet_name, header, content):
         sht = self.xlBook.Worksheets(sheet_name)
-        for i in range(len(content)):
-            for j in range(len(content[0])):
-                sht.Cells(i + 1, j + 1).Value = content[i][j]
+        # 在第1行写入表头
+        for j, attr in enumerate(header):
+            sht.Cells(1, j+1).Value = attr
+        # 从第2行开始写入数据
+        for i, row in enumerate(content):
+            for j, value in enumerate(row):
+                sht.Cells(i+2, j+1).Value = value
         self.save()
 
     def create_sheet(self, sheet_name):

@@ -4,8 +4,8 @@ from datetime import datetime
 # 来自售后员提成明细表
 # 注意：此处的地名一定要与数据源表中的地名完全一致
 # TODO: 售后员表有两种类型，目前只考虑了第一种
-default_psn2plc = {"戴梦菲": ["龙华", "观澜"],
-                   "李飞": ["济源"],
+default_psn2plc = {"戴梦菲": ["龙华", "观澜","纳诺-观澜"],
+                   "李飞": ["济源","纳诺-济源"],
                    "卢伟": ["郑州港区", "郑州加工区", "鹤壁", "锜昌", "建泰"],
                    "周文斌": ["廊坊", "太原", "烟台"]}
 
@@ -14,7 +14,7 @@ class AfterSales(object):
 
     def __init__(self, psn2plc=default_psn2plc):
         self.plc2psn = {}
-        for psn, plcs in psn2plc:
+        for psn, plcs in psn2plc.items():
             for plc in plcs:
                 self.plc2psn[plc] = psn
         # 表头各属性名称，按顺序放置
@@ -56,13 +56,14 @@ class AfterSales(object):
             # 注意此处可能因为编码不同导致相等关系不成立
             if rcd[src_dict['发票号码']] == "未税":
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
+                continue
             else:
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / 1.17
             # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
             # 注意：这里的付款日格式可能形如'2018-3-31/2018-4-4'，但是这些记录的出货地点都是拆分付款，所以正常情况下不会在结果表中
             row[self.rst_dict['到款天数']] = \
-                (datetime.strptime(row[self.rst_dict['到期时间']].split(' ')[0], "%Y-%m-%d")
-                 - datetime.strptime(rcd[self.rst_dict['付款日']].split(' ')[0], "%Y-%m-%d")).days
+                (datetime.strptime(rcd[src_dict['付款日']].split(' ')[0], "%Y-%m-%d")
+                 - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
             row[self.rst_dict['未税服务费']] = ""
             row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
             row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]]

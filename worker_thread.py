@@ -19,7 +19,7 @@ class WorkerThread(QThread):
         return len(self.__files) > 0  # files不能为空
 
     def run(self):
-        self.__work()
+        return self.__work()
 
     # 调用这个函数来更新UI上的进度至progress（progress取值范围应为0-100）
     def __updateProgress(self, progress):
@@ -39,3 +39,11 @@ class WorkerThread(QThread):
 
         after_sales = AfterSales()
         as_header, as_content = after_sales.calc_commission(src_dict, src_data, client_dict)
+        return as_header,as_content
+
+
+if __name__  == '__main__':
+        w=WorkerThread(0)
+        header,content=w.run()
+        print(header)
+        print(content)

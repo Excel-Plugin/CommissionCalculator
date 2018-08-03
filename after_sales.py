@@ -29,7 +29,7 @@ class AfterSales(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,check):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         # TODO: 添加汇总行
@@ -40,7 +40,7 @@ class AfterSales(object):
                 if plc in self.plc2psn:
                     place = plc
                     break
-            if place is None:
+            if (place is None) and (check is True) :
                 continue
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
             row[self.rst_dict['售后']] = self.plc2psn[rcd[src_dict['出货地点']]]
@@ -88,3 +88,42 @@ class AfterSales(object):
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             result.append(row)
         return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换
+
+
+    def calcRatio(self,member,type,days):
+        ##计算提成比例的函数
+            ret=0
+            if (days>180):
+                return 0
+
+            begin=type.split(",")[0]
+            if type=="大客户1%":
+                ret=0.01
+            elif type=="1%提成":
+                ret=0.01
+            elif type=="代理商1%":
+                ret=0.01
+            elif type=="代理商1%，20170601后收款增加沈洁0.5%提成":
+                ret=0.005
+            elif begin=="1%提成":
+                ret=0.01
+            elif begin=="大客户0.5%":
+                if member=="宗露":
+                    ret=0.00162
+                elif member=="郭波":
+                    ret=0.0012
+                elif member=="陈芳强":
+                    ret=0.0012
+                elif member=="吴佳佳":
+                    ret=0.0035
+                elif member=="简建成":
+                    ret=0.0015
+                else :
+                    ret=0.001
+            else :
+                ret=0.001
+
+            return ret
+            pass
+
+

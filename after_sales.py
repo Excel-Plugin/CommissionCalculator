@@ -29,7 +29,7 @@ class AfterSales(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,check):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         # TODO: 添加汇总行
@@ -40,7 +40,7 @@ class AfterSales(object):
                 if plc in self.plc2psn:
                     place = plc
                     break
-            if (place is None) and (check is True) :
+            if (place is None)  :
                 continue
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
             row[self.rst_dict['售后']] = self.plc2psn[rcd[src_dict['出货地点']]]

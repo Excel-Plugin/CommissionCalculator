@@ -10,7 +10,7 @@ default_psn2plc = {"戴梦菲": ["龙华", "观澜","纳诺-观澜"],
                    "周文斌": ["廊坊", "太原", "烟台"]}
 
 
-class AfterSales(object):
+class Bonus(object):
 
     def __init__(self, psn2plc=default_psn2plc):
         self.plc2psn = {}
@@ -35,13 +35,7 @@ class AfterSales(object):
         # TODO: 添加汇总行
         result = []  # 结果表数据
         for rcd in src_data:
-            place = None  # 该行记录对应的出货地点
-            for plc in rcd[src_dict['出货地点']].split('-'):
-                if plc in self.plc2psn:
-                    place = plc
-                    break
-            #if place is None:
-               # continue
+
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
 
             row[self.rst_dict['业务']] = rcd[src_dict['业务']]

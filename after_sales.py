@@ -40,7 +40,7 @@ class AfterSales(object):
                 if plc in self.plc2psn:
                     place = plc
                     break
-            if (place is None)  :
+            if place is None:
                 continue
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
             row[self.rst_dict['售后']] = self.plc2psn[rcd[src_dict['出货地点']]]
@@ -59,19 +59,19 @@ class AfterSales(object):
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
                 continue
             else:
-                row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / 1.17
+                row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / float(rcd[src_dict['税率']])
             # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
-            # 注意：这里的付款日格式可能形如'2018-3-31/2018-4-4'，但是这些记录的出货地点都是拆分付款，所以正常情况下不会在结果表中
+            # 这里的付款日格式可能形如'2018-3-31/2018-4-4'，计算时只使用最后的日期，所以要split('/')[-1]
             row[self.rst_dict['到款天数']] = \
-                (datetime.strptime(rcd[src_dict['付款日']].split(' ')[0], "%Y-%m-%d")
+                (datetime.strptime(rcd[src_dict['付款日']].split(' ')[0].split('/')[-1], "%Y-%m-%d")
                  - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
-            row[self.rst_dict['未税服务费']] = ""
+            row[self.rst_dict['未税服务费']] = ""  # 不需要计算
             row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
             row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
             row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
-            row[self.rst_dict['我司单价']] = 0  # TODO: 不知道我司单价是如何计算的
-            row[self.rst_dict['公司指导价合计']] = ""
-            row[self.rst_dict['实际差价']] = ""
+            row[self.rst_dict['我司单价']] = ""  # 不需要计算
+            row[self.rst_dict['公司指导价合计']] = ""  # 不需要计算
+            row[self.rst_dict['实际差价']] = ""  # 不需要计算
             row[self.rst_dict['成品代码']] = rcd[src_dict['成品代码']]
             row[self.rst_dict['品名']] = rcd[src_dict['品名']]
             row[self.rst_dict['规格']] = rcd[src_dict['规格']]
@@ -82,48 +82,9 @@ class AfterSales(object):
             row[self.rst_dict['数量']] = rcd[src_dict['数量（桶）']]
             row[self.rst_dict['重量']] = rcd[src_dict['重量（公斤）']]
             row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
-            row[self.rst_dict['指导价']] = "指导价"
+            row[self.rst_dict['指导价']] = "指导价"  # 不需要计算
             row[self.rst_dict['单号']] = rcd[src_dict['单号']]
             row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             result.append(row)
         return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换
-
-
-    def calcRatio(self,member,type,days):
-        ##计算提成比例的函数
-            ret=0
-            if (days>180):
-                return 0
-
-            begin=type.split(",")[0]
-            if type=="大客户1%":
-                ret=0.01
-            elif type=="1%提成":
-                ret=0.01
-            elif type=="代理商1%":
-                ret=0.01
-            elif type=="代理商1%，20170601后收款增加沈洁0.5%提成":
-                ret=0.005
-            elif begin=="1%提成":
-                ret=0.01
-            elif begin=="大客户0.5%":
-                if member=="宗露":
-                    ret=0.00162
-                elif member=="郭波":
-                    ret=0.0012
-                elif member=="陈芳强":
-                    ret=0.0012
-                elif member=="吴佳佳":
-                    ret=0.0035
-                elif member=="简建成":
-                    ret=0.0015
-                else :
-                    ret=0.001
-            else :
-                ret=0.001
-
-            return ret
-            pass
-
-

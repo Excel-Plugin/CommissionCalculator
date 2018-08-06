@@ -6,14 +6,14 @@ class CalcRatio:
         self.header=["开始时间","结束时间","规则名","业务员","固定比例","0-60"
             , "61-120","121-150","151-180","切削液","切削油"
             , "其他","售后占比"]
-        im=InterfaceModule.Easyexcel()
+        im=InterfaceModule.Easyexcel(os.getcwd() + r"\about\2018年04道普业务提成明细.xlsx", "57578970", "57578971")
         self.ruleTitle, self.rules=im.get_sheet("规则")
         self.rst_dict = {}
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
         pass
 
-    def calc(self,time,ruleName,salesName,days,goodsName,after_sales_name=None):
+    def calc(self,time,ruleName,days,goodsName,after_sales_name=None,salesName=None):
         sales_ratio1=0
 
         after_sales_ratio=0

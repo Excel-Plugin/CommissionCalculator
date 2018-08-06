@@ -42,7 +42,6 @@ class WorkerThread(QThread):
         return as_header, as_content
 
 
-
 if __name__ == '__main__':
     w = WorkerThread(0)
     header, content = w.run()

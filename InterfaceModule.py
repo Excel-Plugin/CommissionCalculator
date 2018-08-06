@@ -88,6 +88,8 @@ class Easyexcel:
         self.xlBook.Save()
 
     def set_sheet(self, sheet_name, header, content):
+        """Excel支持写入int,float,str三种基本类型，其他类型不能保证
+        注意：datetime类型绝对不能直接写入！必须以str类型写入！（否则写入结果是错误的）"""
         sht = self.xlBook.Worksheets(sheet_name)
         # 在第1行写入表头
         for j, attr in enumerate(header):
@@ -101,7 +103,6 @@ class Easyexcel:
     def create_sheet(self, sheet_name):
         sht = self.xlBook.Worksheets
         sht.Add(After='Sheet1').Name = sheet_name
-        pass
 
 
 if __name__ == '__main__':

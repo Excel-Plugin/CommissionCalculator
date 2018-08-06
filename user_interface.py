@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QProgressBar, QLabel, QLineEdit, QMessageBox
 from PyQt5.uic import loadUi
 from worker_thread import WorkerThread
+import os
 
 
 class MyWindow(QMainWindow):
@@ -29,7 +30,7 @@ class MyWindow(QMainWindow):
 
     def selectFiles(self):
         self.progressText.setText("选择文件")
-        files, ok = QFileDialog.getOpenFileNames(self, "文件选择", "C:/", "Excel Files (*.xls *.xlsx)")
+        files, ok = QFileDialog.getOpenFileNames(self, "文件选择", os.getcwd(), "Excel Files (*.xls *.xlsx)")
         self.__workerThread.setFiles(files)
 
     def startWork(self):

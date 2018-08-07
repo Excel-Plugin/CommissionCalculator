@@ -4,7 +4,7 @@ from after_sales import AfterSales
 from CalcRatio import CalcRatio
 import os
 import logging
-
+import bonus
 
 class WorkerThread(QThread):
 
@@ -46,9 +46,25 @@ class WorkerThread(QThread):
             client_dict[row[clt_dict['客户编号']]] = row
         self.__updateProgress(30)
 
+        sht2_head, sht2 = excel.get_sheet("指导价5月（新）")
+        price_dict = {}
+        for row in sht2:
+            price_dict[row[sht2_head['编号']]] = row[sht2_head['指导单价(未税)\n元/KG']]
+
         slr_dict, slr_data = excel.get_sheet("售后员")
+
+        place = []
+        for i in slr_data:
+            if i[1] != 'None':
+                place.append(i[1])
+
+
         after_sales = AfterSales(slr_dict, slr_data)
         as_header, as_content = after_sales.calc_commission(src_dict, src_data, clt_dict, client_dict, calc_ratio)
+
+        bs=bonus.Bonus()
+        h1, r1, r2 = bs.calc_commission(src_dict, src_data, clt_dict, client_dict, rul_dict, rul_data, price_dict, place)
+
         print("计算完成")
         self.__updateProgress(90)
 
@@ -59,6 +75,10 @@ class WorkerThread(QThread):
         ex = Easyexcel(os.getcwd() + "\\" + targetfile)
         ex.create_sheet("test")
         ex.set_sheet("test", as_header, as_content)
+        ex.create_sheet("test1")
+        ex.set_sheet("test", h1, r1)
+        ex.create_sheet("test2")
+        ex.set_sheet("test", h1, r2)
         print("写入完成")
         self.__updateProgress(100)
 

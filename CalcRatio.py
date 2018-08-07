@@ -14,11 +14,24 @@ class CalcRatio:
             self.rst_dict[attr] = i
         pass
 
-    def calc(self,time,ruleName,days,goodsName,after_sales_name=None,salesName=None):
+    def calc(self,time,ruleName,days,goodsName,salesName=None):
         sales_ratio1=0
 
         after_sales_ratio=0
+
+        names=[]
+
+        ratios=[]
+
         #开票时间、规则名、付款天数、货物名、售后人员名、销售员名字
+        counter=0
+        for rule in self.rules:
+            if (rule[self.rst_dict['规则名']] == ruleName)and(rule[self.rst_dict['开始时间']]=='None' or rule[self.rst_dict['开始时间']] <= time)and(rule[self.rst_dict['结束时间']]=='None' or rule[self.rst_dict['结束']] >= time):
+                names.append(rule[self.rst_dict['业务员']])
+                ratios.append(rule[self.rst_dict['固定比例']])
+                counter=counter+1
+        if(counter>1):
+            return names,ratios
         for rule in self.rules:
 
             if(rule[self.rst_dict['规则名']]==ruleName):

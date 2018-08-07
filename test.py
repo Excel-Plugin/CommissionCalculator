@@ -24,11 +24,15 @@ price_dict={}
 for row in sht2:
             price_dict[row[sht2_head['编号']]]=row[sht2_head['指导单价(未税)\n元/KG']]
 
+sht4_head,sht4=test.get_sheet("售后员")
+place=[]
+for i in sht4:
+    if i[1]!='None':
+        place.append(i[1])
 
+print(place)
 
 test3=bonus.Bonus()
-h1,r1,r2=test3.calc_commission(sht3_head,sht3,clt_dict,client_dict,sht1_head,sht1,price_dict)
-print(r2)
-for i in r2:
-    print(i)
+h1,r1,r2=test3.calc_commission(sht3_head,sht3,clt_dict,client_dict,sht1_head,sht1,price_dict,place)
+print(len(r1))
 

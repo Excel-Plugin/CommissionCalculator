@@ -29,7 +29,7 @@ class Bonus(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,rule_dict,rule_data,price_dict):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,rule_dict,rule_data,price_dict,place):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         # TODO: 添加汇总行
@@ -92,12 +92,7 @@ class Bonus(object):
             row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             tmp1,tmp2=ruleUtil.calc(row[self.rst_dict['出货时间']],row[self.rst_dict['客户类型']],row[self.rst_dict['到款天数']],row[self.rst_dict['品名']])
-            row[self.rst_dict['提成比例']]=tmp1
-            if(tmp1>=1.0):
-                row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * tmp1*(1-tmp2)
-            else:
-                row[self.rst_dict['提成金额']] =row[self.rst_dict['付款未税金额']]*(1-tmp2)*tmp1
-            row[self.rst_dict['提成金额']]=round(row[self.rst_dict['提成金额']],2)
+
             if(row[self.rst_dict['成品代码']] in price_dict.keys()):
                 row[self.rst_dict['我司单价']]=price_dict[row[self.rst_dict['成品代码']] ]
                 if row[self.rst_dict['客户类型']]=="正常计算":
@@ -107,7 +102,27 @@ class Bonus(object):
                         row[self.rst_dict['公司指导价合计']] = float(row[self.rst_dict['重量']]) * float(row[self.rst_dict['我司单价']])+float(row[self.rst_dict['数量']])*30
                     row[self.rst_dict['实际差价']]= row[self.rst_dict['付款未税金额']]- row[self.rst_dict['公司指导价合计']]
             row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
-            result.append(row)
+
+            if self.is_number(tmp1):
+                row[self.rst_dict['提成比例']] = tmp1
+                if (tmp1 >= 1.0):
+                    if self.in_place(row[self.rst_dict['出货地点']],place) :
+                        row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * tmp1 * (1 - tmp2)
+                    else:
+                        row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * tmp1
+                else:
+                    row[self.rst_dict['提成金额']] = row[self.rst_dict['付款未税金额']] * (1 - tmp2) * tmp1
+                row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
+                result.append(row)
+            else:
+                for cnt in len(tmp1):
+                    row[self.rst_dict['提成比例']]=tmp2[cnt]
+                    row[self.rst_dict['提成金额']] = row[self.rst_dict['付款未税金额']]  * tmp2[cnt]
+                    row[self.rst_dict['业务']] = tmp1[cnt]
+                    result.append(row)
+
+
+
 
 
 
@@ -181,3 +196,10 @@ class Bonus(object):
             pass
 
         return False
+
+    def in_place(self,x,place):
+        res=False
+        for i in place:
+            if x in i:
+                return True
+        return res

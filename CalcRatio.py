@@ -29,10 +29,11 @@ class CalcRatio:
                 if  days>180:
                     break
                 if (rule[self.rst_dict['0-60']] != 'None'):
-                    if 0<=days and days<=60:
+                    if  days<=60:
                         sales_ratio1=rule[self.rst_dict['0-60']]
                         break
                 if (rule[self.rst_dict['61-120']] != 'None'):
+
                     if 61<=days and days<=120:
                         sales_ratio1=rule[self.rst_dict['61-120']]
                         break
@@ -52,10 +53,12 @@ class CalcRatio:
                 if "切削液" in goodsName:
                     sales_ratio1=rule[self.rst_dict['切削液']]
                     after_sales_ratio=rule[self.rst_dict['售后占比']]
+                    print("###")
                     break
                 if "切削油" in goodsName:
                     sales_ratio1=rule[self.rst_dict['切削油']]
                     after_sales_ratio=rule[self.rst_dict['售后占比']]
+                    print("!!!")
                     break
                 sales_ratio1 = rule[self.rst_dict['其他']]
                 after_sales_ratio = rule[self.rst_dict['售后占比']]
@@ -64,6 +67,7 @@ class CalcRatio:
             else:
                 continue
 
+        print(goodsName)
 
 
         return  sales_ratio1,after_sales_ratio

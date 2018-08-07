@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
+import CalcRatio
 # 来自售后员提成明细表
 # 注意：此处的地名一定要与数据源表中的地名完全一致
 # TODO: 售后员表有两种类型，目前只考虑了第一种
@@ -29,10 +29,11 @@ class Bonus(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,rule_dict,rule_data):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         # TODO: 添加汇总行
+        ruleUtil=CalcRatio.CalcRatio(rule_dict,rule_data)
         result = []  # 结果表数据
         for rcd in src_data:
 
@@ -60,11 +61,12 @@ class Bonus(object):
                 (datetime.strptime(rcd[src_dict['付款日']].split(' ')[0].split('/')[-1], "%Y-%m-%d")
                  - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
 
-            #row[self.rst_dict['到款天数']]=0
+
             row[self.rst_dict['未税服务费']] = ""  # 不需要计算
+
             row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
-            #row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
-            row[self.rst_dict['客户类型']]="正常计算" # TODO: 需要改动
+            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['提成计算方式']]
+
             row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
             row[self.rst_dict['我司单价']] = ""  # 不需要计算
             row[self.rst_dict['公司指导价合计']] = ""  # 不需要计算
@@ -83,5 +85,7 @@ class Bonus(object):
             row[self.rst_dict['单号']] = rcd[src_dict['单号']]
             row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
+            tmp1,tmp2=ruleUtil.calc(row[self.rst_dict['出货时间']],row[self.rst_dict['客户类型']],row[self.rst_dict['到款天数']],row[self.rst_dict['品名']])
+            row[self.rst_dict['提成比例']]=tmp1
             result.append(row)
         return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换

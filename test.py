@@ -14,10 +14,15 @@ sht2_head,sht2=test.get_sheet("指导价5月（新）")
 
 
 sht3_head,sht3=test.get_sheet("数据源表")
-sht4_head,sht4=test.get_sheet("客户编号")
-print(sht2)
+
+clt_dict, clt_data = test.get_sheet("客户编号")
+client_dict = {}  # 映射关系：客户编号->该客户对应行
+for row in clt_data:
+            client_dict[row[clt_dict['客户编号']]] = row
+
 
 
 
 test3=bonus.Bonus()
-h1,r1=test3.calc_commission(sht3_head,sht3,sht4_head,sht4)
+h1,r1=test3.calc_commission(sht3_head,sht3,clt_dict,client_dict,sht1_head,sht1)
+print(r1)

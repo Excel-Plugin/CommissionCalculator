@@ -15,9 +15,9 @@ class CalcRatio:
         pass
 
     def calc(self,time,ruleName,days,goodsName,salesName=None,aftersale_Name=None):
-        sales_ratio1=0
+        sales_ratio1=0.0
 
-        after_sales_ratio=0
+        after_sales_ratio=0.0
 
         names=[]
 

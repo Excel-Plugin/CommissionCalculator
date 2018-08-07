@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import CalcRatio
+import  types
 # 来自售后员提成明细表
 # 注意：此处的地名一定要与数据源表中的地名完全一致
 # TODO: 售后员表有两种类型，目前只考虑了第一种
@@ -103,7 +104,7 @@ class Bonus(object):
                     row[self.rst_dict['实际差价']]= row[self.rst_dict['付款未税金额']]- row[self.rst_dict['公司指导价合计']]
             row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
 
-            if self.is_number(tmp1):
+            if type(tmp1) == type(1.0):
                 row[self.rst_dict['提成比例']] = tmp1
                 if (tmp1 >= 1.0):
                     if self.in_place(row[self.rst_dict['出货地点']],place) :
@@ -115,11 +116,13 @@ class Bonus(object):
                 row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
                 result.append(row)
             else:
-                for cnt in len(tmp1):
+                for cnt in range(len(tmp1)):
+
                     row[self.rst_dict['提成比例']]=tmp2[cnt]
-                    row[self.rst_dict['提成金额']] = row[self.rst_dict['付款未税金额']]  * tmp2[cnt]
+                    row[self.rst_dict['提成金额']] = float(row[self.rst_dict['付款未税金额']])  * float(tmp2[cnt])
                     row[self.rst_dict['业务']] = tmp1[cnt]
-                    result.append(row)
+                    row1=row.copy()
+                    result.append(row1)
 
 
 

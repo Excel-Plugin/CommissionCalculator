@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from CalcRatio import CalcRatio
 
 
 class Saler(object):
@@ -56,12 +57,14 @@ class AfterSales(object):
             self.rst_dict[attr] = i
         print("AfterSales gened")
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict, calc_ratio):
         """根据数据源表计算各售后服务员提成"""
         result = []  # 结果表数据
         for rcd_num, rcd in enumerate(src_data):
             # print(str(rcd_num) + '/' + str(len(src_data)-1))
+            flag = False  # True为匹配到了地点，否则没有。用于确定提成计算方式
             place = rcd[src_dict['出货地点']]  # 该行记录对应的出货地点
+            number = rcd[src_dict['客户编号']]  # 该行记录对应的客户编号
             shipment = datetime.strptime(rcd[src_dict['出货时间']].split(' ')[0], "%Y-%m-%d")  # 出货时间
             # 这里的付款日格式可能形如'2018-3-31/2018-4-4'，计算时只使用最后的日期，所以要split('/')[-1]
             payment = datetime.strptime(rcd[src_dict['付款日']].split(' ')[0].split('/')[-1], "%Y-%m-%d")  # 付款时间
@@ -70,66 +73,77 @@ class AfterSales(object):
                 for plc in slr.places:  # 该售货员的地名出现在数据源表出货地点中
                     if plc in place \
                             and slr.places[plc][self.slr_dict['出货开始时间']] <= shipment <= slr.places[plc][
-                                self.slr_dict['出货结束时间']]\
+                                self.slr_dict['出货结束时间']] \
                             and slr.places[plc][self.slr_dict['收款开始时间']] <= payment <= slr.places[plc][
                                 self.slr_dict['收款结束时间']]:
                         slrs.append(slr)
+                        flag = True
             if len(slrs) <= 0:  # 出货地点匹配失败，匹配客户编号
-                nbr = rcd[src_dict['客户编号']]  # 该行记录对应的客户编号
                 for slr in self.salers.values():
-                    if nbr in slr.clients \
-                            and slr.clients[nbr][self.slr_dict['出货开始时间']] <= shipment <= slr.clients[nbr][
+                    if number in slr.clients \
+                            and slr.clients[number][self.slr_dict['出货开始时间']] <= shipment <= slr.clients[number][
                                 self.slr_dict['出货结束时间']] \
-                            and slr.clients[nbr][self.slr_dict['收款开始时间']] <= payment <= slr.clients[nbr][
+                            and slr.clients[number][self.slr_dict['收款开始时间']] <= payment <= slr.clients[number][
                                 self.slr_dict['收款结束时间']]:
                         slrs.append(slr)
             if len(slrs) <= 0:  # 没有对应的售后
                 continue
-            row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
-            row[self.rst_dict['售后']] = ""  # 售后员姓名在循环体末尾填
-            row[self.rst_dict['业务']] = rcd[src_dict['业务']]
-            row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']]
-            row[self.rst_dict['客户编号']] = rcd[src_dict['客户编号']]
-            row[self.rst_dict['客户名称']] = rcd[src_dict['客户名称']]
-            row[self.rst_dict['开票金额（含税）']] = round(float(rcd[src_dict['金额']]), 2)  # 保留两位小数
-            row[self.rst_dict['发票号码']] = rcd[src_dict['发票号码']]
-            row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']]
-            row[self.rst_dict['款期']] = rcd[src_dict['款期']]
-            row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
-            row[self.rst_dict['付款金额（含税）']] = round(float(rcd[src_dict['付款金额']]), 2)
-            if rcd[src_dict['发票号码']] == "未税":  # 注意此处可能因为编码不同导致相等关系不成立
-                row[self.rst_dict['付款未税金额']] = round(float(rcd[src_dict['付款金额']]), 2)
-                continue
-            else:
-                row[self.rst_dict['付款未税金额']] = round(float(rcd[src_dict['付款金额']]) / (1+float(rcd[src_dict['税率']])), 2)
-            # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
-            # 这里的付款日格式可能形如'2018-3-31/2018-4-4'，计算时只使用最后的日期，所以要split('/')[-1]
-            row[self.rst_dict['到款天数']] = \
-                (payment - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
-            row[self.rst_dict['未税服务费']] = ""  # 不需要计算
-            row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
-            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
-            row[self.rst_dict['提成金额']] = round(float(rcd[src_dict['数量（桶）']]) * row[self.rst_dict['提成比例']], 2)
-            row[self.rst_dict['我司单价']] = ""  # 不需要计算
-            row[self.rst_dict['公司指导价合计']] = ""  # 不需要计算
-            row[self.rst_dict['实际差价']] = ""  # 不需要计算
-            row[self.rst_dict['成品代码']] = rcd[src_dict['成品代码']]
-            row[self.rst_dict['品名']] = rcd[src_dict['品名']]
-            row[self.rst_dict['规格']] = rcd[src_dict['规格']]
-            row[self.rst_dict['数量']] = float(rcd[src_dict['数量（桶）']])  # 不是钱的单位，不保留两位小数
-            row[self.rst_dict['单位']] = rcd[src_dict['单位']]
-            row[self.rst_dict['单价']] = rcd[src_dict['单价']]
-            row[self.rst_dict['含税金额']] = rcd[src_dict['含税金额']]
-            row[self.rst_dict['重量']] = rcd[src_dict['重量（公斤）']]
-            row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
-            row[self.rst_dict['指导价']] = "指导价"  # 不需要计算
-            row[self.rst_dict['单号']] = rcd[src_dict['单号']]
-            row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
-            row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             for slr in slrs:
-                rw = row.copy()
-                rw[self.rst_dict['售后']] = slr.name
-                result.append(rw)
+                row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
+                row[self.rst_dict['售后']] = slr.name
+                row[self.rst_dict['业务']] = rcd[src_dict['业务']]
+                row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']]
+                row[self.rst_dict['客户编号']] = rcd[src_dict['客户编号']]
+                row[self.rst_dict['客户名称']] = rcd[src_dict['客户名称']]
+                row[self.rst_dict['开票金额（含税）']] = round(float(rcd[src_dict['金额']]), 2)  # 保留两位小数
+                row[self.rst_dict['发票号码']] = rcd[src_dict['发票号码']]
+                row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']]
+                row[self.rst_dict['款期']] = rcd[src_dict['款期']]
+                row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
+                row[self.rst_dict['付款金额（含税）']] = round(float(rcd[src_dict['付款金额']]), 2)
+                if rcd[src_dict['发票号码']] == "未税":  # 注意此处可能因为编码不同导致相等关系不成立
+                    row[self.rst_dict['付款未税金额']] = round(float(rcd[src_dict['付款金额']]), 2)
+                    continue
+                else:
+                    row[self.rst_dict['付款未税金额']] = round(
+                        float(rcd[src_dict['付款金额']]) / (1 + float(rcd[src_dict['税率']])), 2)
+                # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
+                # 这里的付款日格式可能形如'2018-3-31/2018-4-4'，计算时只使用最后的日期，所以要split('/')[-1]
+                row[self.rst_dict['到款天数']] = \
+                    (payment - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
+                row[self.rst_dict['未税服务费']] = ""  # 不需要计算
+                if flag:  # 匹配到地点，使用外部计算方法
+                    r1, r2 = calc_ratio.calc(shipment, client_dict[number][clt_dict['提成计算方式']],
+                                             row[self.rst_dict['到款天数']], rcd[src_dict['品名']],
+                                             slr.name, rcd[src_dict['业务']])  # 第二项是售后员提成
+                    row[self.rst_dict['提成比例']] = r1 * r2
+                    row[self.rst_dict['提成金额']] = round(float(rcd[src_dict['数量（桶）']]) * r1 * r2, 2)
+                else:  # 匹配到客户，按照售后表的提成比例
+                    row[self.rst_dict['提成比例']] = float(slr.clients[number][self.slr_dict['提成比例']])
+                    row[self.rst_dict['提成金额']] = \
+                        round(row[self.rst_dict['提成比例']] * float(row[self.rst_dict['付款未税金额']]), 2)
+                row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
+                row[self.rst_dict['我司单价']] = ""  # 不需要计算
+                row[self.rst_dict['公司指导价合计']] = ""  # 不需要计算
+                row[self.rst_dict['实际差价']] = ""  # 不需要计算
+                row[self.rst_dict['成品代码']] = rcd[src_dict['成品代码']]
+                row[self.rst_dict['品名']] = rcd[src_dict['品名']]
+                row[self.rst_dict['规格']] = rcd[src_dict['规格']]
+                row[self.rst_dict['数量']] = float(rcd[src_dict['数量（桶）']])  # 不是钱的单位，不保留两位小数
+                row[self.rst_dict['单位']] = rcd[src_dict['单位']]
+                row[self.rst_dict['单价']] = rcd[src_dict['单价']]
+                row[self.rst_dict['含税金额']] = rcd[src_dict['含税金额']]
+                row[self.rst_dict['重量']] = rcd[src_dict['重量（公斤）']]
+                row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
+                row[self.rst_dict['指导价']] = "指导价"  # 不需要计算
+                row[self.rst_dict['单号']] = rcd[src_dict['单号']]
+                row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
+                row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
+                result.append(row)
+                # for slr in slrs:
+                #     rw = row.copy()
+                #     rw[self.rst_dict['售后']] = slr.name
+                #     result.append(rw)
         print("result gened")
 
         # 计算售后员汇总

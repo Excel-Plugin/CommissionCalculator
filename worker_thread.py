@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QThread
 from InterfaceModule import Easyexcel
 from after_sales import AfterSales
+from CalcRatio import CalcRatio
 import os
 import logging
 
@@ -34,6 +35,8 @@ class WorkerThread(QThread):
     def __work(self):
         excel = Easyexcel(self.__files[0], "57578970", "57578971")
         src_dict, src_data = excel.get_sheet("数据源表")
+        rul_dict, rul_data = excel.get_sheet("规则")
+        calc_ratio = CalcRatio(rul_dict, rul_data)
 
         # 注意1：这里默认客户编号表里面所有行都没有空属性且文件结尾前没有空行
         # 注意2：这里默认客户编号表里所有客户类型都在规则表的"规则名"列中
@@ -45,7 +48,7 @@ class WorkerThread(QThread):
 
         slr_dict, slr_data = excel.get_sheet("售后员")
         after_sales = AfterSales(slr_dict, slr_data)
-        as_header, as_content = after_sales.calc_commission(src_dict, src_data, clt_dict, client_dict)
+        as_header, as_content = after_sales.calc_commission(src_dict, src_data, clt_dict, client_dict, calc_ratio)
         print("计算完成")
         self.__updateProgress(90)
 

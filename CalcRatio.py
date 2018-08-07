@@ -14,7 +14,7 @@ class CalcRatio:
             self.rst_dict[attr] = i
         pass
 
-    def calc(self,time,ruleName,days,goodsName,salesName=None):
+    def calc(self,time,ruleName,days,goodsName,salesName=None,aftersale_Name=None):
         sales_ratio1=0
 
         after_sales_ratio=0

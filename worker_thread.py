@@ -76,9 +76,9 @@ class WorkerThread(QThread):
         ex.create_sheet("test")
         ex.set_sheet("test", as_header, as_content)
         ex.create_sheet("test1")
-        ex.set_sheet("test", h1, r1)
+        ex.set_sheet("test1", h1, r1)
         ex.create_sheet("test2")
-        ex.set_sheet("test", h1, r2)
+        ex.set_sheet("test2", h1, r2)
         print("写入完成")
         self.__updateProgress(100)
 

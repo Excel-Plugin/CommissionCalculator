@@ -52,7 +52,11 @@ class WorkerThread(QThread):
         print("计算完成")
         self.__updateProgress(90)
 
-        ex = Easyexcel(os.getcwd()+r"\test.xlsx")
+        targetfile = "test.xlsx"
+        if os.path.isfile(targetfile):
+            print("覆盖原文件")
+            os.remove(targetfile)
+        ex = Easyexcel(os.getcwd() + "\\" + targetfile)
         ex.create_sheet("test")
         ex.set_sheet("test", as_header, as_content)
         print("写入完成")

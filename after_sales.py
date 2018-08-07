@@ -92,18 +92,19 @@ class AfterSales(object):
                 row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
                 row[self.rst_dict['售后']] = slr.name
                 row[self.rst_dict['业务']] = rcd[src_dict['业务']]
-                row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']]
+                row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']].split(' ')[0]
                 row[self.rst_dict['客户编号']] = rcd[src_dict['客户编号']]
                 row[self.rst_dict['客户名称']] = rcd[src_dict['客户名称']]
                 row[self.rst_dict['开票金额（含税）']] = round(float(rcd[src_dict['金额']]), 2)  # 保留两位小数
-                row[self.rst_dict['发票号码']] = rcd[src_dict['发票号码']]
-                row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']]
+                # 首字符为单引号以标明此单元格为文本而非数字，避免发票号码首位的0丢失
+                if row[self.rst_dict['发票号码']] != "未税":
+                    row[self.rst_dict['发票号码']] = "'" + rcd[src_dict['发票号码']]
+                row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']].split(' ')[0]
                 row[self.rst_dict['款期']] = rcd[src_dict['款期']]
-                row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
+                row[self.rst_dict['付款日']] = rcd[src_dict['付款日']].split(' ')[0]
                 row[self.rst_dict['付款金额（含税）']] = round(float(rcd[src_dict['付款金额']]), 2)
-                if rcd[src_dict['发票号码']] == "未税":  # 注意此处可能因为编码不同导致相等关系不成立
+                if rcd[src_dict['发票号码']] == "未税":
                     row[self.rst_dict['付款未税金额']] = round(float(rcd[src_dict['付款金额']]), 2)
-                    continue
                 else:
                     row[self.rst_dict['付款未税金额']] = round(
                         float(rcd[src_dict['付款金额']]) / (1 + float(rcd[src_dict['税率']])), 2)
@@ -137,13 +138,9 @@ class AfterSales(object):
                 row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
                 row[self.rst_dict['指导价']] = "指导价"  # 不需要计算
                 row[self.rst_dict['单号']] = rcd[src_dict['单号']]
-                row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
+                row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']].split(' ')[0]
                 row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
                 result.append(row)
-                # for slr in slrs:
-                #     rw = row.copy()
-                #     rw[self.rst_dict['售后']] = slr.name
-                #     result.append(rw)
         print("result gened")
 
         # 计算售后员汇总
@@ -155,7 +152,6 @@ class AfterSales(object):
         total[self.rst_dict['付款金额（含税）']] = 0
         total[self.rst_dict['付款未税金额']] = 0
         total[self.rst_dict['提成金额']] = 0
-        total[self.rst_dict['数量']] = 0
         tmp = ["" for _ in range(0, len(self.rst_dict))]  # 当前售后员累计
         tmp[self.rst_dict['售后']] = result[0][self.rst_dict['售后']]
         tmp[self.rst_dict['开票金额（含税）']] = 0
@@ -187,7 +183,6 @@ class AfterSales(object):
             total[self.rst_dict['付款金额（含税）']] += row[self.rst_dict['付款金额（含税）']]
             total[self.rst_dict['付款未税金额']] += row[self.rst_dict['付款未税金额']]
             total[self.rst_dict['提成金额']] += row[self.rst_dict['提成金额']]
-            total[self.rst_dict['数量']] += row[self.rst_dict['数量']]
             i += 1
         tmp[self.rst_dict['售后']] += " 汇总"
         result.append(tmp)

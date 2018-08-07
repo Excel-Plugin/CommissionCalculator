@@ -6,17 +6,18 @@ import pickle
 
 def cache(get_sheet):
     """Easyexcel类中get_sheet函数的装饰器，用于自动缓存被使用过的sheet
-    注意1：若被处理的Excel表不再是’about/2018年04道普业务提成明细.xlsx’，这里需要修改
-    注意2：若sheet被修改了，将cached_sheets下对应的pickle文件删除即可，之后调用get_sheet时会自动生成"""
+    注意：若sheet被修改了，将cached_sheets下对应的pickle文件删除即可，之后调用get_sheet时会自动生成"""
+
     def inner(self, sheet_name):
-        if os.path.exists("cached_sheets/" + sheet_name + ".pickle"):
-            print("exists "+sheet_name)
-            with open("cached_sheets/" + sheet_name + ".pickle", "rb") as f:
+
+        if os.path.exists("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle"):
+            print("exists " + sheet_name)
+            with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "rb") as f:
                 return pickle.load(f)
         else:
-            print("gen "+sheet_name)
+            print("gen " + sheet_name)
             header_dict, sheet_data = get_sheet(self, sheet_name)
-            with open("cached_sheets/" + sheet_name + ".pickle", "wb") as f:
+            with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "wb") as f:
                 pickle.dump((header_dict, sheet_data), f)
             return header_dict, sheet_data
 
@@ -24,16 +25,20 @@ def cache(get_sheet):
 
 
 class Easyexcel:
-    def __init__(self, filename=None, access_password=None, write_res_password=None):
+    def __init__(self, filepath, access_password=None, write_res_password=None):
+        if not os.path.isfile(filepath):  # 文件名不存在则新建文件
+            app = win32com.client.Dispatch('Excel.Application')
+            app.Workbooks.Add().SaveAs(filepath)
         self.xlApp = win32com.client.Dispatch('Excel.Application')
-        if filename:
-            self.xlApp.Visible = True
-            self.filename = filename
-            self.xlBook = self.xlApp.Workbooks.Open(Filename=filename, UpdateLinks=2, ReadOnly=False, Format=None,
-                                                    Password=access_password, WriteResPassword=write_res_password)
-        else:
-            self.xlBook = self.xlApp.Workbooks.Add()
-            self.filename = ''
+        self.xlApp.Visible = True
+        self.filepath = filepath  # 文件完整路径
+        self.xlBook = self.xlApp.Workbooks.Open(Filename=filepath, UpdateLinks=2, ReadOnly=False, Format=None,
+                                                Password=access_password, WriteResPassword=write_res_password)
+        self.filename = os.path.basename(filepath)  # 文件名
+        if not os.path.isdir('cached_sheets/'):
+            os.mkdir('cached_sheets/')
+        if not os.path.isdir('cached_sheets/' + self.filename):
+            os.mkdir('cached_sheets/' + self.filename)
 
     def get_a_row(self, sheet_name, r, col_num=-1):
         """col_num<0,根据末尾连续空格数决定此行是否终止(用于读取表头);col_num>=0,读入长度为col_num的一行(用于读取普通数据)
@@ -82,7 +87,7 @@ class Easyexcel:
         return header_dict, sheet_data
 
     def close(self):
-        self.xlBook.Close(self.filename)
+        self.xlBook.Close(self.filepath)
         del self.xlApp
 
     def save(self):

@@ -67,7 +67,8 @@ class Easyexcel:
         r += 1
         header_dict = {}
         for i, name in enumerate(header):
-            header_dict[name] = i
+            if name not in header_dict:  # 表头重复者以第一个出现的为准
+                header_dict[name] = i
 
         # 读取表中数据到data中
         sheet_data = []
@@ -97,7 +98,10 @@ class Easyexcel:
         # 从第2行开始写入数据
         for i, row in enumerate(content):
             for j, value in enumerate(row):
-                sht.Cells(i+2, j+1).Value = value
+                if value != 'None':  # 若为空，则直接填空字符串
+                    sht.Cells(i+2, j+1).Value = value
+                else:
+                    sht.Cells(i+2, j+1).Value = ""
         self.save()
 
     def create_sheet(self, sheet_name):
@@ -106,8 +110,8 @@ class Easyexcel:
 
 
 if __name__ == '__main__':
-    excel = Easyexcel(os.getcwd() + r"\about\2018年04道普业务提成明细.xlsx", "57578970", "57578971")
-    header_dict, sheet_data = excel.get_sheet("应收款4月份（数据源表）")
+    excel = Easyexcel(os.getcwd() + r"\test.xlsx")
+    header_dict, sheet_data = excel.get_sheet("客户编号test")
     print(len(header_dict))
     print(len(sheet_data))
     print(header_dict)

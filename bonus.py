@@ -59,9 +59,12 @@ class Bonus(object):
             row[self.rst_dict['到款天数']] = \
                 (datetime.strptime(rcd[src_dict['付款日']].split(' ')[0].split('/')[-1], "%Y-%m-%d")
                  - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
+
+            #row[self.rst_dict['到款天数']]=0
             row[self.rst_dict['未税服务费']] = ""  # 不需要计算
             row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
-            row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['提成计算方式']]
+            #row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['客户类型']]
+            row[self.rst_dict['客户类型']]="正常计算" # TODO: 需要改动
             row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
             row[self.rst_dict['我司单价']] = ""  # 不需要计算
             row[self.rst_dict['公司指导价合计']] = ""  # 不需要计算

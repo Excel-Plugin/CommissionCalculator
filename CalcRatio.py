@@ -53,23 +53,25 @@ class CalcRatio:
                 if "切削液" in goodsName:
                     sales_ratio1=rule[self.rst_dict['切削液']]
                     after_sales_ratio=rule[self.rst_dict['售后占比']]
-                    print("###")
+
                     break
                 if "切削油" in goodsName:
                     sales_ratio1=rule[self.rst_dict['切削油']]
                     after_sales_ratio=rule[self.rst_dict['售后占比']]
-                    print("!!!")
+
                     break
                 sales_ratio1 = rule[self.rst_dict['其他']]
                 after_sales_ratio = rule[self.rst_dict['售后占比']]
 
                 break
+
             else:
                 continue
 
-        print(goodsName)
 
 
+        sales_ratio1=float(sales_ratio1)
+        after_sales_ratio=float(after_sales_ratio)
         return  sales_ratio1,after_sales_ratio
         #返回值>1 表示每桶多少钱，返回值<1 表示比例
         pass

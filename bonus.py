@@ -87,10 +87,10 @@ class Bonus(object):
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             tmp1,tmp2=ruleUtil.calc(row[self.rst_dict['出货时间']],row[self.rst_dict['客户类型']],row[self.rst_dict['到款天数']],row[self.rst_dict['品名']])
             row[self.rst_dict['提成比例']]=tmp1
-            if(float(tmp1)>=1.0):
-                row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * row[self.rst_dict['提成比例']]*(1-float(tmp2))
+            if(tmp1>=1.0):
+                row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * tmp1*(1-tmp2)
             else:
-                row[self.rst_dict['提成金额']] =row[self.rst_dict['付款未税金额']]*(1-float(tmp2))*float(tmp1)
+                row[self.rst_dict['提成金额']] =row[self.rst_dict['付款未税金额']]*(1-tmp2)*tmp1
             row[self.rst_dict['提成金额']]=round(row[self.rst_dict['提成金额']],2)
             result.append(row)
         return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换

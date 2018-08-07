@@ -4,3 +4,4 @@ pyinstaller --hidden-import=queue -F -w -i "img/calculator.ico" "user_interface.
 md dist\platforms
 xcopy platforms dist\platforms /s
 copy user_interface.ui dist\
+ren user_interface.exe 提成计算器.exe

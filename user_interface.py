@@ -11,8 +11,8 @@ class MyWindow(QMainWindow):
     def __init__(self):
         super(MyWindow, self).__init__()
         self.progressSignal.connect(self.updateProgressSlot)
-        self.__workerThread = WorkerThread(self.progressSignal)
         self.initUI()
+        self.__workerThread = WorkerThread(self.progressSignal, self.progressText)
 
     def initUI(self):
         loadUi('user_interface.ui', self)
@@ -44,6 +44,7 @@ class MyWindow(QMainWindow):
             QMessageBox.warning(self, "正在运行", "处理正在进行中，请等待当前处理结束")
             return
 
+        self.__workerThread.setPassWord(self.lineEditOpenPassword.text(), self.lineEditEditPassword.text())
         self.__workerThread.start()
         self.progressText.setText("正在处理...")
 

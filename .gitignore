@@ -3,6 +3,7 @@
 
 about/~$*
 test.xlsx
+*.spec
 
 *.py[cod]
 *.so

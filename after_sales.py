@@ -103,7 +103,6 @@ class AfterSales(object):
                 row[self.rst_dict['付款金额（含税）']] = round(float(rcd[src_dict['付款金额']]), 2)
                 if rcd[src_dict['发票号码']] == "未税":  # 注意此处可能因为编码不同导致相等关系不成立
                     row[self.rst_dict['付款未税金额']] = round(float(rcd[src_dict['付款金额']]), 2)
-                    continue
                 else:
                     row[self.rst_dict['付款未税金额']] = round(
                         float(rcd[src_dict['付款金额']]) / (1 + float(rcd[src_dict['税率']])), 2)
@@ -140,10 +139,6 @@ class AfterSales(object):
                 row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
                 row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
                 result.append(row)
-                # for slr in slrs:
-                #     rw = row.copy()
-                #     rw[self.rst_dict['售后']] = slr.name
-                #     result.append(rw)
         print("result gened")
 
         # 计算售后员汇总

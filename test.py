@@ -27,9 +27,8 @@ for row in sht2:
 
 
 test3=bonus.Bonus()
-h1,r1=test3.calc_commission(sht3_head,sht3,clt_dict,client_dict,sht1_head,sht1,price_dict)
-print(r1)
-print(price_dict)
-
-print(price_dict['CSR24'])
+h1,r1,r2=test3.calc_commission(sht3_head,sht3,clt_dict,client_dict,sht1_head,sht1,price_dict)
+print(r2)
+for i in r2:
+    print(i)
 

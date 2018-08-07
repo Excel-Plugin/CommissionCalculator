@@ -35,6 +35,7 @@ class Bonus(object):
         # TODO: 添加汇总行
         ruleUtil=CalcRatio.CalcRatio(rule_dict,rule_data)
         result = []  # 结果表数据
+        print(len(src_data))
         for rcd in src_data:
 
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
@@ -45,6 +46,9 @@ class Bonus(object):
             row[self.rst_dict['客户名称']] = rcd[src_dict['客户名称']]
             row[self.rst_dict['开票金额（含税）']] = rcd[src_dict['金额']]
             row[self.rst_dict['发票号码']] = rcd[src_dict['发票号码']]
+            if row[self.rst_dict['发票号码']]!="未税":
+                row[self.rst_dict['发票号码']]="'"+row[self.rst_dict['发票号码']]
+
             row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']]
             row[self.rst_dict['款期']] = rcd[src_dict['款期']]
             row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
@@ -52,7 +56,7 @@ class Bonus(object):
             # 注意此处可能因为编码不同导致相等关系不成立
             if rcd[src_dict['发票号码']] == "未税":
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
-                continue
+
             else:
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / (1+float(rcd[src_dict['税率']]))
             # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
@@ -104,4 +108,76 @@ class Bonus(object):
                     row[self.rst_dict['实际差价']]= row[self.rst_dict['付款未税金额']]- row[self.rst_dict['公司指导价合计']]
             row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
             result.append(row)
-        return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换
+
+
+
+        result.sort(key=lambda row: row[self.rst_dict['业务']])
+
+        result2 = []
+        name=result[0][0]
+        adder1=0.0
+        adder2 = 0.0
+        adder3 = 0.0
+        adder4 = 0.0
+        adder5 = 0.0
+        adder6 = 0.0
+
+        for i in result:
+            if(i[0]!=name):
+                row = ["" for _ in range(0, len(self.rst_dict))]
+                row[self.rst_dict['业务']]=name
+                row[self.rst_dict['开票日期']]="汇总"
+                row[self.rst_dict['开票金额（含税）']]=round(adder1,2)
+                row[self.rst_dict['付款金额（含税）']] = round(adder2,2)
+                row[self.rst_dict['付款未税金额']] = round(adder3,2)
+                row[self.rst_dict['提成金额']] = round(adder4,2)
+                row[self.rst_dict['公司指导价合计']] = round(adder5,2)
+                row[self.rst_dict['实际差价']] = round(adder6,2)
+                name=i[0]
+                adder1=0.0
+                adder2 = 0.0
+                adder3 = 0.0
+                adder4 = 0.0
+                adder5 = 0.0
+                adder6 = 0.0
+                result2.append(row)
+            result2.append(i)
+            adder1=adder1+float(i[self.rst_dict['开票金额（含税）']])
+            adder2=adder2+float(i[self.rst_dict['付款金额（含税）']])
+            adder3 = adder3 + float(i[self.rst_dict['付款未税金额']])
+            adder4 = adder4 + float(i[self.rst_dict['提成金额']])
+            if self.is_number(i[self.rst_dict['公司指导价合计']]):
+                adder5 = adder5 + float(i[self.rst_dict['公司指导价合计']])
+            if self.is_number(i[self.rst_dict['实际差价']]):
+                adder6 = adder6 + float(i[self.rst_dict['实际差价']])
+        row = ["" for _ in range(0, len(self.rst_dict))]
+        row[self.rst_dict['业务']] = name
+        row[self.rst_dict['开票日期']] = "汇总"
+        row[self.rst_dict['开票金额（含税）']] = round(adder1, 2)
+        row[self.rst_dict['付款金额（含税）']] = round(adder2, 2)
+        row[self.rst_dict['付款未税金额']] = round(adder3, 2)
+        row[self.rst_dict['提成金额']] = round(adder4, 2)
+        row[self.rst_dict['公司指导价合计']] = round(adder5, 2)
+        row[self.rst_dict['实际差价']] = round(adder6, 2)
+        result2.append(row)
+
+
+
+
+        return self.header, result,result2  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换
+
+    def is_number(self,s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            pass
+
+        try:
+            import unicodedata
+            unicodedata.numeric(s)
+            return True
+        except (TypeError, ValueError):
+            pass
+
+        return False

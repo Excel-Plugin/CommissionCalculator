@@ -68,7 +68,8 @@ class CalcRatio:
             else:
                 continue
 
-
+        if(days<180 and sales_ratio1==0):
+            print("not found the rule:"+ruleName)
 
         sales_ratio1=float(sales_ratio1)
         after_sales_ratio=float(after_sales_ratio)

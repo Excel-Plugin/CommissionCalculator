@@ -29,7 +29,7 @@ class Bonus(object):
         for i, attr in enumerate(self.header):
             self.rst_dict[attr] = i
 
-    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,rule_dict,rule_data):
+    def calc_commission(self, src_dict, src_data, clt_dict, client_dict,rule_dict,rule_data,price_dict):
         """根据数据源表计算各售后服务员提成"""
         # TODO: 写入Excel的时候记得把所有float型数据按照保留两位小数显示
         # TODO: 添加汇总行
@@ -54,7 +54,7 @@ class Bonus(object):
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
                 continue
             else:
-                row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / float(rcd[src_dict['税率']])
+                row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']]) / (1+float(rcd[src_dict['税率']]))
             # 值格式为'2018-04-23 00:00:00+00:00'，所以要split(' ')[0]
             # 这里的付款日格式可能形如'2018-3-31/2018-4-4'，计算时只使用最后的日期，所以要split('/')[-1]
             row[self.rst_dict['到款天数']] = \
@@ -62,9 +62,9 @@ class Bonus(object):
                  - datetime.strptime(rcd[src_dict['开票日期']].split(' ')[0], "%Y-%m-%d")).days
 
 
-            row[self.rst_dict['未税服务费']] = ""  # 不需要计算
+            row[self.rst_dict['未税服务费']] = ""    # Todo:不需要计算
 
-            row[self.rst_dict['提成比例']] = 0  # TODO: 添加提成比例
+            row[self.rst_dict['提成比例']] = 0
             row[self.rst_dict['客户类型']] = client_dict[rcd[src_dict['客户编号']]][clt_dict['提成计算方式']]
 
             row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']])*row[self.rst_dict['提成比例']]
@@ -81,7 +81,9 @@ class Bonus(object):
             row[self.rst_dict['数量']] = rcd[src_dict['数量（桶）']]
             row[self.rst_dict['重量']] = rcd[src_dict['重量（公斤）']]
             row[self.rst_dict['单桶公斤数量']] = rcd[src_dict['单桶重量']]
-            row[self.rst_dict['指导价']] = "指导价"  # 不需要计算
+            row[self.rst_dict['指导价']] = "指导价"
+            if float(row[self.rst_dict['单桶公斤数量']])<50:
+                row[self.rst_dict['指导价']] = "指导价+Y4*30"
             row[self.rst_dict['单号']] = rcd[src_dict['单号']]
             row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
@@ -92,5 +94,14 @@ class Bonus(object):
             else:
                 row[self.rst_dict['提成金额']] =row[self.rst_dict['付款未税金额']]*(1-tmp2)*tmp1
             row[self.rst_dict['提成金额']]=round(row[self.rst_dict['提成金额']],2)
+            if(row[self.rst_dict['成品代码']] in price_dict.keys()):
+                row[self.rst_dict['我司单价']]=price_dict[row[self.rst_dict['成品代码']] ]
+                if row[self.rst_dict['客户类型']]=="正常计算":
+                    if  row[self.rst_dict['指导价']]=="指导价":
+                        row[self.rst_dict['公司指导价合计']]=float(row[self.rst_dict['重量']])*float(row[self.rst_dict['我司单价']])
+                    else:
+                        row[self.rst_dict['公司指导价合计']] = float(row[self.rst_dict['重量']]) * float(row[self.rst_dict['我司单价']])+float(row[self.rst_dict['数量']])*30
+                    row[self.rst_dict['实际差价']]= row[self.rst_dict['付款未税金额']]- row[self.rst_dict['公司指导价合计']]
+            row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
             result.append(row)
         return self.header, result  # TODO: 由于不知道接口是否支持直接写入int,float，所以暂且没有将非str类型进行转换

@@ -203,6 +203,6 @@ class Bonus(object):
     def in_place(self,x,place):
         res=False
         for i in place:
-            if x in i:
+            if i in x:
                 return True
         return res

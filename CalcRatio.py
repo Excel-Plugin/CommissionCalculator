@@ -5,7 +5,7 @@ class CalcRatio:
     def __init__(self,title,rulesArr):
         self.header=["开始时间","结束时间","规则名","业务员","固定比例","0-60"
             , "61-120","121-150","151-180","切削液","切削油"
-            , "其他","售后占比"]
+            , "其他","售后占比","主管占比"]
 
         self.ruleTitle=title
         self.rules=rulesArr
@@ -22,6 +22,7 @@ class CalcRatio:
         names=[]
 
         ratios=[]
+
 
         #开票时间、规则名、付款天数、货物名、售后人员名、销售员名字
         counter=0

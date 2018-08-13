@@ -74,10 +74,12 @@ class WorkerThread(QThread):
 
         self.__progressText.setText("正在读取指导价表")
         sht2_head, sht2 = excel.get_sheet("指导价")
-        price_dict = {}
+        price = []
         for row in sht2:
-            price_dict[row[sht2_head['编号']]] = row[sht2_head['指导单价(未税)\n元/KG']]
+            price.append([row[sht2_head['编号']],row[sht2_head['指导单价(未税)\n元/KG']],row[sht2_head['备注']],row[sht2_head['出货开始时间']],row[sht2_head['出货结束时间']]])
         self.__updateProgress(45)
+
+        sht4_head, sht4= excel.get_sheet("主管表")
 
         self.__progressText.setText("正在读取售后员表")
         slr_dict, slr_data = excel.get_sheet("售后员")
@@ -88,15 +90,15 @@ class WorkerThread(QThread):
         places = []  # 售后员表中的地点名
         for row in slr_data:
             if row[1] != 'None':
-                places.append(row[1])
+                places.append([row[1],row[5],row[6]])
 
         after_sales = AfterSales(slr_dict, slr_data)
         as_header, as_content = after_sales.calc_commission(src_dict, src_data, clt_dict, client_dict, calc_ratio)
         self.__updateProgress(55)
 
         self.__progressText.setText("正在计算：业务员提成")
-        bs=bonus.Bonus()
-        h1, r1, r2 = bs.calc_commission(src_dict, src_data, clt_dict, client_dict, rul_dict, rul_data, price_dict, places)
+        bs=bonus.Bonus(price)
+        h1, r1, r2 = bs.calc_commission(src_dict, src_data, clt_dict, client_dict, rul_dict, rul_data, places, sht4)
         self.__updateProgress(60)
 
         self.__progressText.setText("正在写入："+targetfile)

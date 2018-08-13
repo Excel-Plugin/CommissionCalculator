@@ -5,24 +5,24 @@ import pickle
 import win32timezone  # 程序打包需要用到这个包，否则会报错
 
 
-# def cache(get_sheet):
-#     """Easyexcel类中get_sheet函数的装饰器，用于自动缓存被使用过的sheet
-#     注意：若sheet被修改了，将cached_sheets下对应的pickle文件删除即可，之后调用get_sheet时会自动生成"""
-#
-#     def inner(self, sheet_name):
-#
-#         if os.path.exists("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle"):
-#             print("exists " + sheet_name)
-#             with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "rb") as f:
-#                 return pickle.load(f)
-#         else:
-#             print("gen " + sheet_name)
-#             header_dict, sheet_data = get_sheet(self, sheet_name)
-#             with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "wb") as f:
-#                 pickle.dump((header_dict, sheet_data), f)
-#             return header_dict, sheet_data
-#
-#     return inner
+def cache(get_sheet):
+    """Easyexcel类中get_sheet函数的装饰器，用于自动缓存被使用过的sheet
+    注意：若sheet被修改了，将cached_sheets下对应的pickle文件删除即可，之后调用get_sheet时会自动生成"""
+
+    def inner(self, sheet_name):
+
+        if os.path.exists("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle"):
+            print("exists " + sheet_name)
+            with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "rb") as f:
+                return pickle.load(f)
+        else:
+            print("gen " + sheet_name)
+            header_dict, sheet_data = get_sheet(self, sheet_name)
+            with open("cached_sheets/" + self.filename + "/" + sheet_name + ".pickle", "wb") as f:
+                pickle.dump((header_dict, sheet_data), f)
+            return header_dict, sheet_data
+
+    return inner
 
 
 class Easyexcel:
@@ -36,10 +36,10 @@ class Easyexcel:
         self.xlBook = self.xlApp.Workbooks.Open(Filename=filepath, UpdateLinks=2, ReadOnly=False, Format=None,
                                                 Password=access_password, WriteResPassword=write_res_password)
         self.filename = os.path.basename(filepath)  # 文件名
-     #   if not os.path.isdir('cached_sheets/'):
-     #      os.mkdir('cached_sheets/')
-     #   if not os.path.isdir('cached_sheets/' + self.filename):
-     #       os.mkdir('cached_sheets/' + self.filename)
+        if not os.path.isdir('cached_sheets/'):
+            os.mkdir('cached_sheets/')
+        if not os.path.isdir('cached_sheets/' + self.filename):
+            os.mkdir('cached_sheets/' + self.filename)
 
     def get_a_row(self, sheet_name, r, col_num=-1):
         """col_num<0,根据末尾连续空格数决定此行是否终止(用于读取表头);col_num>=0,读入长度为col_num的一行(用于读取普通数据)
@@ -59,7 +59,7 @@ class Easyexcel:
                 row = []
         return row
 
-    # @cache
+    @cache
     def get_sheet(self, sheet_name):
         """读取Excel表中的一个sheet，返回表头各属性对应索引dict和数据表
         注意1：这里默认所有sheet都是矩阵，即所有行长度都等于表头长度

@@ -56,7 +56,7 @@ class Bonus(object):
             row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
             row[self.rst_dict['付款金额（含税）']] = rcd[src_dict['付款金额']]
             # 注意此处可能因为编码不同导致相等关系不成立
-            if rcd[src_dict['发票号码']] == "未税":
+            if rcd[src_dict['发票号码']] == "未税" or rcd[src_dict['税率']]=='None':
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
 
             else:
@@ -114,7 +114,7 @@ class Bonus(object):
 
             row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
             if row[self.rst_dict['客户类型']] == "正常计算":
-                row[self.rst_dict['付款未税金额']]-row[self.rst_dict['未税服务费']]
+                row[self.rst_dict['付款未税金额']]=float(row[self.rst_dict['付款未税金额']])-float(row[self.rst_dict['未税服务费']])
 
             if type(tmp1) == type(1.0):
                 row[self.rst_dict['提成比例']] = tmp1

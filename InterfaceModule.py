@@ -36,10 +36,10 @@ class Easyexcel:
         self.xlBook = self.xlApp.Workbooks.Open(Filename=filepath, UpdateLinks=2, ReadOnly=False, Format=None,
                                                 Password=access_password, WriteResPassword=write_res_password)
         self.filename = os.path.basename(filepath)  # 文件名
-        # if not os.path.isdir('cached_sheets/'):
-        #     os.mkdir('cached_sheets/')
-        # if not os.path.isdir('cached_sheets/' + self.filename):
-        #     os.mkdir('cached_sheets/' + self.filename)
+     #   if not os.path.isdir('cached_sheets/'):
+     #      os.mkdir('cached_sheets/')
+     #   if not os.path.isdir('cached_sheets/' + self.filename):
+     #       os.mkdir('cached_sheets/' + self.filename)
 
     def get_a_row(self, sheet_name, r, col_num=-1):
         """col_num<0,根据末尾连续空格数决定此行是否终止(用于读取表头);col_num>=0,读入长度为col_num的一行(用于读取普通数据)

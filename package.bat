@@ -5,4 +5,4 @@ md dist\platforms
 xcopy platforms dist\platforms /s
 copy user_interface.ui dist\
 cd /d dist
-ren user_interface.exe 提成计算器.exe
+ren user_interface.exe calculator.exe

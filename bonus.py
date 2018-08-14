@@ -56,7 +56,7 @@ class Bonus(object):
             row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
             row[self.rst_dict['付款金额（含税）']] = rcd[src_dict['付款金额']]
             # 注意此处可能因为编码不同导致相等关系不成立
-            if rcd[src_dict['发票号码']] == "未税" or rcd[src_dict['税率']]=='None':
+            if rcd[src_dict['发票号码']] == "未税"  or (not self.is_number(rcd[src_dict['税率']])):
                 row[self.rst_dict['付款未税金额']] = float(rcd[src_dict['付款金额']])
 
             else:
@@ -105,6 +105,7 @@ class Bonus(object):
                 row[self.rst_dict['我司单价']]=pr0
                 if('出货算差价不加价' in pr1):
                     row[self.rst_dict['指导价']]="指导价"
+                    print("触发特殊情况：出货算差价不加价")
                 if row[self.rst_dict['客户类型']]=="正常计算"  and  row[self.rst_dict['到款天数']]<=180:
                     if  row[self.rst_dict['指导价']]=="指导价":
                         row[self.rst_dict['公司指导价合计']]=float(row[self.rst_dict['重量']])*float(row[self.rst_dict['我司单价']])
@@ -143,6 +144,7 @@ class Bonus(object):
                     row1[self.rst_dict['提成金额']]=float(row[self.rst_dict['付款未税金额']])*float(i[5])
                     row1[self.rst_dict['提成比例']] = float(row[self.rst_dict['提成比例']]) * float(i[5])
                     result.append(row1)
+
 
 
 
@@ -232,4 +234,5 @@ class Bonus(object):
         for i in self.price:
             if (x==i[0]) and (i[3]<=t) and (t<=i[4]):
                 return [i[1],i[2]]
+        print("no such product: "+ x)
         return None

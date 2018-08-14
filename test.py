@@ -28,7 +28,8 @@ for row in slr_data:
 bs=bonus.Bonus(price)
 h1, r1, r2 = bs.calc_commission(src_dict, src_data, clt_dict, client_dict, rul_dict, rul_data, places, sht4)
 print(r1)
-
+print()
+print(h1)
 
 
 

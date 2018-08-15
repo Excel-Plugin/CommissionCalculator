@@ -43,7 +43,7 @@ class Bonus(object):
             row = ["" for _ in range(0, len(self.rst_dict))]  # 注意这里不能用[]*len(self.rst_dict)（复制的是引用）
 
             row[self.rst_dict['业务']] = rcd[src_dict['业务']]
-            row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']]
+            row[self.rst_dict['开票日期']] = rcd[src_dict['开票日期']].split(" ")[0]
             row[self.rst_dict['客户编号']] = rcd[src_dict['客户编号']]
             row[self.rst_dict['客户名称']] = rcd[src_dict['客户名称']]
             row[self.rst_dict['开票金额（含税）']] = rcd[src_dict['金额']]
@@ -51,9 +51,9 @@ class Bonus(object):
             if row[self.rst_dict['发票号码']]!="未税":
                 row[self.rst_dict['发票号码']]="'"+row[self.rst_dict['发票号码']]
 
-            row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']]
+            row[self.rst_dict['到期时间']] = rcd[src_dict['到期时间']].split(" ")[0]
             row[self.rst_dict['款期']] = rcd[src_dict['款期']]
-            row[self.rst_dict['付款日']] = rcd[src_dict['付款日']]
+            row[self.rst_dict['付款日']] = rcd[src_dict['付款日']].split(" ")[0]
             row[self.rst_dict['付款金额（含税）']] = rcd[src_dict['付款金额']]
             # 注意此处可能因为编码不同导致相等关系不成立
             if rcd[src_dict['发票号码']] == "未税"  or (not self.is_number(rcd[src_dict['税率']])):
@@ -94,7 +94,7 @@ class Bonus(object):
             if float(row[self.rst_dict['单桶公斤数量']])<50:
                 row[self.rst_dict['指导价']] = "指导价+Y4*30"
             row[self.rst_dict['单号']] = rcd[src_dict['单号']]
-            row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']]
+            row[self.rst_dict['出货时间']] = rcd[src_dict['出货时间']].split(" ")[0]
             row[self.rst_dict['出货地点']] = rcd[src_dict['出货地点']]
             tmp1,tmp2=ruleUtil.calc(row[self.rst_dict['出货时间']],row[self.rst_dict['客户类型']],row[self.rst_dict['到款天数']],row[self.rst_dict['品名']])
 
@@ -102,7 +102,7 @@ class Bonus(object):
             if(price_arr != None):
                 pr0=price_arr[0]
                 pr1=price_arr[1]
-                row[self.rst_dict['我司单价']]=pr0
+                row[self.rst_dict['我司单价']]=float(pr0)
                 if('出货算差价不加价' in pr1):
                     row[self.rst_dict['指导价']]="指导价"
                     print("触发特殊情况：出货算差价不加价")
@@ -112,10 +112,17 @@ class Bonus(object):
                     else:
                         row[self.rst_dict['公司指导价合计']] = float(row[self.rst_dict['重量']]) * float(row[self.rst_dict['我司单价']])+float(row[self.rst_dict['数量']])*30
                     row[self.rst_dict['实际差价']]= row[self.rst_dict['付款未税金额']]- row[self.rst_dict['公司指导价合计']]
+                    row[self.rst_dict['实际差价']] = round(row[self.rst_dict['实际差价']], 2)
+                    row[self.rst_dict['公司指导价合计']] = round(row[self.rst_dict['公司指导价合计']], 2)
+                    row[self.rst_dict['我司单价']] = round(row[self.rst_dict['我司单价']], 2)
 
             row[self.rst_dict['付款未税金额']] = round(row[self.rst_dict['付款未税金额']], 2)
+
+            tcp=0.0
             if row[self.rst_dict['客户类型']] == "正常计算":
-                row[self.rst_dict['付款未税金额']]=float(row[self.rst_dict['付款未税金额']])-float(row[self.rst_dict['未税服务费']])
+                tcp=float(row[self.rst_dict['付款未税金额']])-float(row[self.rst_dict['未税服务费']])
+            else:
+                tcp=float(row[self.rst_dict['付款未税金额']])
 
             if type(tmp1) == type(1.0):
                 row[self.rst_dict['提成比例']] = tmp1
@@ -125,14 +132,15 @@ class Bonus(object):
                     else:
                         row[self.rst_dict['提成金额']] = float(rcd[src_dict['数量（桶）']]) * tmp1
                 else:
-                    row[self.rst_dict['提成金额']] = row[self.rst_dict['付款未税金额']] * (1 - tmp2) * tmp1
+                    row[self.rst_dict['提成金额']] = tcp * (1 - tmp2) * tmp1
                 row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
                 result.append(row)
             else:
                 for cnt in range(len(tmp1)):
 
                     row[self.rst_dict['提成比例']]=tmp2[cnt]
-                    row[self.rst_dict['提成金额']] = float(row[self.rst_dict['付款未税金额']])  * float(tmp2[cnt])
+                    row[self.rst_dict['提成金额']] = tcp  * float(tmp2[cnt])
+                    row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
                     row[self.rst_dict['业务']] = tmp1[cnt]
                     row1=row.copy()
                     result.append(row1)
@@ -141,7 +149,8 @@ class Bonus(object):
                 if row[self.rst_dict['业务']]==i[0] and row[self.rst_dict['出货时间']]>=i[2] and row[self.rst_dict['出货时间']]<=i[3] and row[self.rst_dict['客户类型']]==i[4]:
                     row1=row.copy()
                     row1[self.rst_dict['业务']]=i[1]
-                    row1[self.rst_dict['提成金额']]=float(row[self.rst_dict['付款未税金额']])*float(i[5])
+                    row1[self.rst_dict['提成金额']]=tcp*float(i[5])
+                    row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
                     row1[self.rst_dict['提成比例']] = float(row[self.rst_dict['提成比例']]) * float(i[5])
                     result.append(row1)
 

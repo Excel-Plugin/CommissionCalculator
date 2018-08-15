@@ -4,6 +4,7 @@
 about/~$*
 test.xlsx
 *.spec
+*.zip
 
 *.py[cod]
 *.so

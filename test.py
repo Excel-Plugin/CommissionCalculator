@@ -3,8 +3,9 @@ import InterfaceModule as IM
 import os
 import CalcRatio
 import  bonus
-excel=IM.Easyexcel(os.getcwd() +r"\about\2018年06道普业务提成明细.xlsx")
+excel=IM.Easyexcel(os.getcwd() +r"\about\2018年07道普业务提成明细（南大）.xlsx")
 src_dict, src_data = excel.get_sheet("数据源表")
+
 
 rul_dict, rul_data = excel.get_sheet("规则")
 
@@ -12,6 +13,8 @@ clt_dict, clt_data = excel.get_sheet("客户编号")
 client_dict = {}  # 映射关系：客户编号->该客户对应行
 for row in clt_data:
     client_dict[row[clt_dict['客户编号']]] = row
+
+print(client_dict)
 
 sht2_head, sht2 = excel.get_sheet("指导价")
 price = []

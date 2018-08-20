@@ -162,7 +162,7 @@ class Bonus(object):
                 if row[self.rst_dict['业务']]==i[0] and row[self.rst_dict['出货时间']]>=i[2] and row[self.rst_dict['出货时间']]<=i[3] and row[self.rst_dict['客户类型']]==i[4]:
                     row1=row.copy()
                     row1[self.rst_dict['业务']]=i[1]
-                    row1[self.rst_dict['提成比例']] = float(row[self.rst_dict['提成比例']]) * float(i[5])
+                    row1[self.rst_dict['提成比例']] = tmp1 * float(i[5])
                     row1[self.rst_dict['提成金额']]=float(rcd[src_dict['数量（桶）']]) * row1[self.rst_dict['提成比例']]
                     row[self.rst_dict['提成金额']] = round(row[self.rst_dict['提成金额']], 2)
                     result.append(row1)
